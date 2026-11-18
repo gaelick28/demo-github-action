@@ -1,0 +1,4 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+aws_deployment.txt
