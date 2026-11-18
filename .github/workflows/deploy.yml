@@ -1,0 +1,40 @@
+name: "CI/CD"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: "CI/CD"
+    runs-on: ubuntu-latest
+    environment: dev
+
+    defaults:
+      run:
+        working-directory: environments/dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Init
+        run: terraform init
+
+      - name: Format
+        run: terraform fmt -recursive -check
+
+      - name: Validate
+        run: terraform validate
+
+      - name: Plan
+        run: >-
+          terraform plan -out=tfplan
+          -var="aws_region=${{ vars.AWS_REGION }}"
+          -var="instance_count=${{ vars.INSTANCE_COUNT }}"
+          -var="enable_monitoring=${{ vars.ENABLE_MONITORING }}"
+
+      - name: Apply
+        run: terraform apply tfplan
